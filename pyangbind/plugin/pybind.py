@@ -296,12 +296,17 @@ def build_pybind(ctx, modules, fd):
     # Bail if there are pyang errors, since this certainly means that the
     # pyangbind output will fail - unless these are solely due to imports that
     # we provided but then unused.
+    count_fatal = 0
     if len(ctx.errors):
         for e in ctx.errors:
-            print("INFO: encountered %s" % str(e))
-            if not e[1] in ["UNUSED_IMPORT", "PATTERN_ERROR"]:
-                sys.stderr.write("FATAL: pyangbind cannot build module that pyang" + " has found errors with.\n")
-                sys.exit(127)
+            if e[1] in ["UNUSED_IMPORT", "PATTERN_ERROR"]:
+                print(f"INFO: encountered '{str(e)}'")
+            else:
+                count_fatal += 1
+                print(f"ERROR {count_fatal}: encountered '{str(e)}'")
+    if count_fatal:
+        sys.stderr.write("FATAL: pyangbind cannot build module that pyang" + " has found errors with.\n")
+        sys.exit(127)
 
     # Build the common set of imports that all pyangbind files needs
     ctx.pybind_common_hdr = "# -*- coding: utf-8 -*-"
