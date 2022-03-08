@@ -308,7 +308,7 @@ def build_pybind(ctx, modules, fd):
                 count_fatal += 1
                 print(f"ERROR #{count_fatal}: encountered '{complain(ref, line, tag)}'")
     if WORKAROUND:
-      count_fatal = 0
+        count_fatal = 0
     if count_fatal:
         sys.stderr.write("FATAL: pyangbind cannot build module that pyang" + " has found errors with.\n")
         sys.exit(127)
@@ -1341,6 +1341,8 @@ def build_elemtype(ctx, et, prefix=False):
                     pp.pprint(et.arg)
                     pp.pprint(base_stmt.arg)
                 sys.exit(127)
+        elif et.arg == "bits":
+            elemtype = class_map["boolean"]   # TODO
         else:
             # For all other cases, then we should be able to look up directly in the
             # class_map for the defined type, since these are not 'derived' types
@@ -1370,6 +1372,8 @@ def build_elemtype(ctx, et, prefix=False):
             # this is used to propagate the fact that in some cases the
             # native type needs to be dynamically built (e.g., leafref)
             cls = elemtype["class_override"]
+        if DEBUG:
+            pp.pprint("build_elemtype: " + et.arg + "; " + dump_yang_pos(et.pos))
 
     return (cls, elemtype)
 
@@ -1713,6 +1717,12 @@ def get_element(ctx, fd, element, module, parent, path, parent_cfg=True, choice=
 
 def complain(ref, line:int, tag:str=""):
     """ ref is the filename, line is an integer with line number """
-    assert tag, f"Empty tag"
-    astr = f"{ref}:{line} ({tag})"
+    if tag:
+        astr = f"{ref}:{line} ({tag})"
+    else:
+        astr = f"{ref}:{line}"
     return astr
+
+def dump_yang_pos(pos) -> str:
+    ref, line = pos.ref, pos.line
+    return complain(ref, line)
