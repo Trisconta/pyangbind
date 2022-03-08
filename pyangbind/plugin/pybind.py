@@ -563,7 +563,7 @@ def build_typedefs(ctx, defnd):
                 unresolved_t.append(t)
 
     if error_ids:
-        raise TypeError("could not resolve typedefs %s" % error_ids)
+        raise TypeError(f"could not resolve typedefs: {error_ids}")
 
     # Process the types that we built above.
     for i_tuple in process_typedefs_ordered:

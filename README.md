@@ -7,6 +7,9 @@
 [![PyPI - License][img-license]][license]
 [![PyPI - Python Version][img-pyversion]][pypi-project]
 
+Alternate location:
+- `git clone git@github.com:Trisconta/pyangbind.git`
+
 
 **PyangBind** is a plugin for [Pyang][pyang] that generates a Python class hierarchy from a YANG data model. The resulting classes can be directly interacted with in Python. Particularly, **PyangBind** will allow you to:
 
