@@ -37,6 +37,8 @@ import pyangbind.helpers.misc as misc_help
 from pyangbind.helpers.identity import IdentityStore
 from pyangbind.lib.yangtypes import RestrictedClassType, YANGBool, safe_name
 
+WORKAROUND = True
+
 # Python3 support
 if six.PY3:
     long = int
@@ -298,12 +300,15 @@ def build_pybind(ctx, modules, fd):
     # we provided but then unused.
     count_fatal = 0
     if len(ctx.errors):
-        for e in ctx.errors:
-            if e[1] in ["UNUSED_IMPORT", "PATTERN_ERROR"]:
-                print(f"INFO: encountered '{str(e)}'")
+        for an_err in ctx.errors:
+            ref, line, tag = an_err[0].ref, an_err[0].line, an_err[1]
+            if tag in ["UNUSED_IMPORT", "PATTERN_ERROR"]:
+                print(f"INFO: encountered '{complain(ref, line, tag)}'")
             else:
                 count_fatal += 1
-                print(f"ERROR {count_fatal}: encountered '{str(e)}'")
+                print(f"ERROR #{count_fatal}: encountered '{complain(ref, line, tag)}'")
+    if WORKAROUND:
+      count_fatal = 0
     if count_fatal:
         sys.stderr.write("FATAL: pyangbind cannot build module that pyang" + " has found errors with.\n")
         sys.exit(127)
@@ -1704,3 +1709,10 @@ def get_element(ctx, fd, element, module, parent, path, parent_cfg=True, choice=
 
         this_object.append(elemdict)
     return this_object
+
+
+def complain(ref, line:int, tag:str=""):
+    """ ref is the filename, line is an integer with line number """
+    assert tag, f"Empty tag"
+    astr = f"{ref}:{line} ({tag})"
+    return astr
